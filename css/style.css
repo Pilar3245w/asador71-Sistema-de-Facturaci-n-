@@ -1,0 +1,242 @@
+
+/* ---------- 1. Colores de la marca ---------- */
+
+:root,
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0e0c0b;
+  --bs-body-color: #f3ede6;
+  --bs-secondary-color: #a39a92;
+  --bs-border-color: #352e2b;
+
+  --carbon: #1a1615;
+  --elevado: #231e1c;
+  --llama: #f0a22e;
+  --llama-osc: #d98a14;
+  --titulo: "Archivo Black", Impact, "Arial Black", sans-serif;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--titulo);
+  font-weight: 400;
+}
+
+
+/* ---------- 2. Encabezado y banner ---------- */
+
+.barra {
+  background-color: #262120;
+  border-bottom: 3px solid var(--llama);
+}
+
+.logo {
+  display: block;
+  height: 72px;
+  width: auto;
+}
+
+.banner {
+  height: clamp(110px, 20vw, 240px);
+  background-color: #000;
+  overflow: hidden;
+}
+
+.banner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* ---------- 3. Componentes de Bootstrap con los colores de la marca ---------- */
+
+.card {
+  --bs-card-bg: var(--carbon);
+  --bs-card-border-color: var(--bs-border-color);
+}
+
+.btn-llama {
+  --bs-btn-color: #1a1209;
+  --bs-btn-bg: var(--llama);
+  --bs-btn-border-color: var(--llama);
+  --bs-btn-hover-color: #1a1209;
+  --bs-btn-hover-bg: var(--llama-osc);
+  --bs-btn-hover-border-color: var(--llama-osc);
+  --bs-btn-active-color: #1a1209;
+  --bs-btn-active-bg: var(--llama-osc);
+  --bs-btn-active-border-color: var(--llama-osc);
+  --bs-btn-focus-shadow-rgb: 240, 162, 46;
+  font-weight: 700;
+}
+
+.btn-link {
+  --bs-btn-color: var(--bs-secondary-color);
+  --bs-btn-hover-color: var(--llama);
+  font-size: 0.85rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--llama);
+  box-shadow: 0 0 0 0.25rem rgba(240, 162, 46, 0.25);
+}
+
+.list-group {
+  --bs-list-group-bg: transparent;
+}
+
+.table {
+  --bs-table-bg: transparent;
+}
+
+
+/* ---------- 4. Carta (tarjetas de platos) ---------- */
+
+.plato {
+  --bs-card-bg: var(--elevado);
+  min-height: 128px;
+  overflow: hidden;
+}
+
+.plato-nombre {
+  margin: 0 0 0.25rem;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.precio {
+  color: var(--llama);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.plato-img {
+  width: 128px;
+  flex-shrink: 0;
+  object-fit: cover;
+  background-color: #000;
+}
+
+
+/* ---------- 5. Pedido y totales ---------- */
+
+#lista-pedido {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.cant-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  line-height: 1;
+}
+
+.sub {
+  min-width: 70px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.total {
+  font-family: var(--titulo);
+  font-size: 1.6rem;
+  color: var(--llama);
+}
+
+
+/* ---------- 6. Ventas ---------- */
+
+tr.anulada td {
+  color: var(--bs-secondary-color);
+  text-decoration: line-through;
+}
+
+tr.anulada td:last-child {
+  text-decoration: none;
+}
+
+
+/* ---------- 7. Ventanas emergentes ---------- */
+
+dialog {
+  width: min(92%, 400px);
+  padding: 1.25rem;
+  background-color: var(--carbon);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Comprobante e informe: aspecto de papel */
+#comprobante,
+#informe {
+  background-color: #fff;
+  color: #111;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+#informe {
+  width: min(92%, 480px);
+}
+
+#comprobante .table,
+#informe .table {
+  --bs-table-color: #111;
+  --bs-table-border-color: #bbb;
+  font-size: 0.85rem;
+}
+
+#comprobante td:last-child,
+#informe td:last-child {
+  text-align: right;
+}
+
+.aviso {
+  padding: 0.4rem;
+  text-align: center;
+  font-weight: 700;
+  color: #b00020;
+  border: 2px solid #b00020;
+}
+
+
+/* ---------- 8. Al imprimir ---------- */
+
+/* margin: 0 elimina la fecha y la dirección web que el navegador agrega arriba y abajo */
+
+@page {
+  margin: 0;
+}
+
+@media print {
+  body {
+    background-color: #fff;
+  }
+
+/* Quita de la hoja todo lo que no sea el comprobante o el informe abierto */
+  body > *:not(dialog[open]) {
+    display: none !important;
+  }
+
+  dialog[open] {
+    position: absolute;
+    inset: 0 0 auto 0;
+    width: 100%;
+    max-width: 90mm;
+    margin: 0 auto;
+    padding: 12mm 4mm;
+    border: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

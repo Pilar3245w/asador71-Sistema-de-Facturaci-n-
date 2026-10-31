@@ -1,0 +1,14 @@
+# Sistema
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor
+.vscode/
+
+# Dependencias y logs
+node_modules/
+*.log
+
+# Archivos de configuración sensibles
+.env
