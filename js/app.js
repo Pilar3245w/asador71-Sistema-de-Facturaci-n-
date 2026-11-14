@@ -1,7 +1,5 @@
-import { ProductoModel } from "./models/ProductoModel.js";
-import { PedidoModel } from "./models/PedidoModel.js";
-import { ClienteModel } from "./models/ClienteModel.js";
-import { Vista } from "./views/Vista.js";
-import { AppController } from "./controllers/AppController.js";
+// Punto de arranque: crea la aplicación Vue y la dibuja dentro de <main id="app">
+import { createApp } from "vue";
+import AsadorApp from "./components/AsadorApp.js";
 
-new AppController(new ProductoModel(), new PedidoModel(), new Vista(), new ClienteModel());
+createApp(AsadorApp).mount("#app");
