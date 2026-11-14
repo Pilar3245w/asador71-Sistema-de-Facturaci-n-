@@ -3,6 +3,7 @@
 // Debe coincidir con TASA_IGV de api/conexion.php
 // 8% IGV + 2.5% IPM (MYPE restaurantes 2026)
 export const TASA_IGV = 0.105;
+export const ETIQUETA_IGV = `IGV ${(TASA_IGV * 100).toFixed(1)}%`;
 
 export const soles = n => "S/ " + Number(n).toFixed(2);
 
@@ -14,7 +15,7 @@ export function calcularTotales(items) {
   return { subtotal, igv, total };
 }
 
-// Convierte una fecha a texto AAAA-MM-DD (hora local)
+// Convierte una fecha a texto AAAA-MM-DD (hora local), para comparar con los filtros
 export function fechaLocal(fecha) {
   const d = new Date(fecha);
   const dos = n => String(n).padStart(2, "0");
@@ -22,6 +23,9 @@ export function fechaLocal(fecha) {
 }
 
 export const hoy = () => fechaLocal(new Date());
+
+// AAAA-MM-DD -> DD/MM/AAAA
+export const formatoFecha = s => (s ? s.split("-").reverse().join("/") : "inicio");
 
 // Convierte la foto a texto y la reduce a 600px para que no pese
 export function leerImagen(archivo) {
@@ -43,4 +47,14 @@ export function leerImagen(archivo) {
     };
     lector.readAsDataURL(archivo);
   });
+}
+
+// Descarga un archivo de texto (CSV con BOM para que Excel lea bien las tildes)
+export function descargarArchivo(nombre, texto, tipo, conBom = false) {
+  const blob = new Blob([conBom ? "\ufeff" + texto : texto], { type: tipo });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }

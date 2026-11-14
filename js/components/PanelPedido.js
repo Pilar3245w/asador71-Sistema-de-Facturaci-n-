@@ -1,20 +1,21 @@
 // COMPONENTE - Panel "Pedido"
 // Responsabilidad: mostrar los platos elegidos, permitir cambiar cantidades, pedir los
-// datos del cliente y mostrar subtotal, IGV y total. Los datos del pedido vienen del store.
-// (En la etapa 2 se activa el botón "Generar comprobante".)
+// datos del cliente, validarlos y emitir el comprobante. Los datos del pedido vienen del store.
 import { ref, watch } from "vue";
-import { items, totales, cambiarCantidad, buscarCliente } from "../store.js";
-import { soles, TASA_IGV } from "../utils.js";
+import { items, totales, cambiarCantidad, buscarCliente, emitirVenta, irAHoy } from "../store.js";
+import { validarCliente } from "../validaciones.js";
+import { soles, ETIQUETA_IGV } from "../utils.js";
 
 export default {
   name: "PanelPedido",
-  setup() {
+  emits: ["emitida"],
+  setup(props, { emit }) {
     const mesa = ref(1);
     const tipo = ref("Boleta");
     const documento = ref("");
     const cliente = ref("");
     const estadoDoc = ref("");
-    const etiquetaIgv = `IGV ${(TASA_IGV * 100).toFixed(1)}%`;
+    const generando = ref(false);
 
     // Solo números; al completar un DNI (8) o RUC (11) busca el nombre del cliente
     watch(documento, valor => {
@@ -30,7 +31,33 @@ export default {
       }
     });
 
-    return { items, totales, cambiarCantidad, soles, etiquetaIgv, mesa, tipo, documento, cliente, estadoDoc };
+    async function generar() {
+      if (!items.value.length) return alert("El pedido está vacío.");
+      const datos = {
+        mesa: mesa.value,
+        tipo: tipo.value,
+        cliente: cliente.value.trim(),
+        documento: documento.value.trim()
+      };
+      const error = validarCliente(datos, totales.value.total);
+      if (error) return alert(error);
+
+      generando.value = true;
+      try {
+        const venta = await emitirVenta(datos);
+        documento.value = "";
+        cliente.value = "";
+        estadoDoc.value = "";
+        irAHoy();
+        emit("emitida", venta);
+      } catch (e) {
+        alert("No se pudo emitir el comprobante: " + e.message);
+      } finally {
+        generando.value = false;
+      }
+    }
+
+    return { items, totales, cambiarCantidad, soles, ETIQUETA_IGV, mesa, tipo, documento, cliente, estadoDoc, generando, generar };
   },
   template: `
     <section class="col-lg-4">
@@ -38,7 +65,7 @@ export default {
         <div class="card-body">
           <h2 class="h5 mb-3">Pedido</h2>
 
-          <ul class="list-group list-group-flush mb-3">
+          <ul id="lista-pedido" class="list-group list-group-flush mb-3">
             <li v-for="i in items" :key="i.id" class="list-group-item d-flex align-items-center gap-2 px-0">
               <div class="flex-grow-1">
                 {{ i.nombre }}
@@ -81,15 +108,14 @@ export default {
               <span>Subtotal</span><span class="text-body">{{ soles(totales.subtotal) }}</span>
             </div>
             <div class="d-flex justify-content-between text-secondary">
-              <span>{{ etiquetaIgv }}</span><span class="text-body">{{ soles(totales.igv) }}</span>
+              <span>{{ ETIQUETA_IGV }}</span><span class="text-body">{{ soles(totales.igv) }}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center mt-1">
               <strong>Total</strong><span class="total">{{ soles(totales.total) }}</span>
             </div>
           </div>
 
-          <button class="btn btn-llama btn-lg w-100 mt-3" disabled>Generar comprobante</button>
-          <p class="small text-secondary mt-2 mb-0">Se activa en la etapa 2.</p>
+          <button class="btn btn-llama btn-lg w-100 mt-3" :disabled="generando" @click="generar">Generar comprobante</button>
         </div>
       </div>
     </section>

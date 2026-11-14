@@ -1,19 +1,29 @@
 // COMPONENTE RAÍZ - Asador 71
-// Responsabilidad: unir los componentes (carta, pedido, formulario) y decidir qué
+// Responsabilidad: unir los componentes (carta, pedido, ventas y ventanas) y decidir qué
 // pasa cuando el usuario hace algo. No dibuja detalles ni habla con el servidor:
 // para eso están los componentes hijos y el store.
 import { ref, onMounted } from "vue";
 import SeccionCarta from "./SeccionCarta.js";
 import PanelPedido from "./PanelPedido.js";
+import SeccionVentas from "./SeccionVentas.js";
 import FormularioPlato from "./FormularioPlato.js";
-import { productos, cargarDatos, guardarPlato, quitarPlato, agregarAlPedido } from "../store.js";
+import Comprobante from "./Comprobante.js";
+import InformeVentas from "./InformeVentas.js";
+import { productos, resumen, desde, hasta, cargarDatos, guardarPlato, quitarPlato, agregarAlPedido } from "../store.js";
 
 export default {
   name: "AsadorApp",
-  components: { SeccionCarta, PanelPedido, FormularioPlato },
+  components: { SeccionCarta, PanelPedido, SeccionVentas, FormularioPlato, Comprobante, InformeVentas },
   setup() {
+    // Formulario de plato
     const formAbierto = ref(false);
     const platoEnEdicion = ref(null);
+    // Comprobante
+    const comprobanteAbierto = ref(false);
+    const ventaMostrada = ref(null);
+    // Informe
+    const informeAbierto = ref(false);
+    const informeDatos = ref(null);
 
     onMounted(async () => {
       try {
@@ -45,7 +55,29 @@ export default {
       }
     }
 
-    return { productos, agregarAlPedido, formAbierto, platoEnEdicion, nuevoPlato, editarPlato, cerrarFormulario, guardar, quitar };
+    function mostrarComprobante(venta) {
+      if (!venta) return;
+      ventaMostrada.value = venta;
+      comprobanteAbierto.value = true;
+    }
+
+    // Se guarda una "foto" del informe para que no cambie mientras está abierto
+    function abrirInforme() {
+      informeDatos.value = {
+        resumen: resumen.value,
+        desde: desde.value,
+        hasta: hasta.value,
+        emitido: new Date().toLocaleString()
+      };
+      informeAbierto.value = true;
+    }
+
+    return {
+      productos, agregarAlPedido,
+      formAbierto, platoEnEdicion, nuevoPlato, editarPlato, cerrarFormulario, guardar, quitar,
+      comprobanteAbierto, ventaMostrada, mostrarComprobante,
+      informeAbierto, informeDatos, abrirInforme
+    };
   },
   template: `
     <div class="row g-3">
@@ -56,18 +88,13 @@ export default {
         @editar="editarPlato"
         @quitar="quitar" />
 
-      <PanelPedido />
+      <PanelPedido @emitida="mostrarComprobante" />
 
-      <section class="col-12">
-        <div class="card">
-          <div class="card-body">
-            <h2 class="h5 mb-2">Ventas</h2>
-            <p class="text-secondary mb-0">El historial, la anulación, el informe y la exportación a Excel se pasan a Vue en la etapa 2.</p>
-          </div>
-        </div>
-      </section>
+      <SeccionVentas @ver="mostrarComprobante" @informe="abrirInforme" />
     </div>
 
     <FormularioPlato :abierto="formAbierto" :plato="platoEnEdicion" @guardar="guardar" @cerrar="cerrarFormulario" />
+    <Comprobante :abierto="comprobanteAbierto" :venta="ventaMostrada" @cerrar="comprobanteAbierto = false" />
+    <InformeVentas :abierto="informeAbierto" :datos="informeDatos" @cerrar="informeAbierto = false" />
   `
 };
