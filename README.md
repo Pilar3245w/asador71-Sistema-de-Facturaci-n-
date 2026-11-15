@@ -1,8 +1,8 @@
 # Asador 71 - Sistema de facturación V1
 
-Proyecto académico 1. Frontend en HTML, CSS, JavaScript (módulos ES) y Bootstrap 5,
+Proyecto académico 1 y 2. Frontend en HTML, CSS, JavaScript (módulos ES) Vue3 y Bootstrap 5,
 
-con arquitectura MVC. Backend en PHP con base de datos MySQL.
+organizado en componentes, estado (store) y una capa de servicios. Backend en PHP con base de datos MySQL.
 
 ## Cómo ejecutarlo
 1. Instalar XAMPP y encender **Apache** y **MySQL**.
